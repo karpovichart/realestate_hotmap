@@ -94,7 +94,7 @@ class Scrapper:
     async def run(self):  # todo make it better
         while True:
             if self.requested_coords.count() != 0:
-                print(f"start parsing ${self.requested_coords.get_last()}")
+                print(f"start parsing ")
                 self.get_realstate_items()
                 print("data parsed")
             else:
