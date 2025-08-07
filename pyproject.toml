@@ -7,5 +7,12 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.115.14",
     "folium>=0.20.0",
+    "pytest>=8.4.1",
     "requests[standard]>=2.32.4",
+    "ruff>=0.12.7",
+    "types-requests>=2.32.4.20250611",
 ]
+
+[tool.ruff]
+lint.extend-select = ["ANN"]
+exclude = ["tests/"]
