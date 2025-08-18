@@ -1,4 +1,4 @@
-from models.requestedcoords import Coords, RequestedCoords
+from models.models import RequestedCoords, Coords
 
 
 def test_initial_state():

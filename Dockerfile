@@ -12,8 +12,8 @@ RUN sh /uv-installer.sh && rm /uv-installer.sh
 # Ensure the installed binary is on the `PATH`
 ENV PATH="/root/.local/bin/:$PATH"
 WORKDIR /app
-COPY pyproject.toml /app
+COPY ["pyproject.toml", "uv.lock", "/app/"]
 
-RUN uv pip install -r pyproject.toml  --system
-COPY main.py /app
-CMD ["/usr/local/bin/python", "/app/main.py"]
+RUN uv sync
+COPY . /app
+CMD ["uv", "run", "/app/main.py"]

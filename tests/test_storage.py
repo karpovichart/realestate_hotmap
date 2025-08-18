@@ -1,9 +1,11 @@
 import pytest
-from models.storage import Coords, StorageItem, Storage
+
+from models.models import StorageItem, Coords, Storage
 
 
 def test_initial_data():
     """Test that the storage initializes with the default data."""
+    from models.models import Storage
     storage = Storage()
     data = {
         1: StorageItem(Coords(2, 2), 3),
