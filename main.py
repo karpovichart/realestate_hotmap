@@ -11,7 +11,7 @@ from uvicorn import Config, Server
 from models.models import Storage, RequestedCoords, Scrapper, Coords, ViewData
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 app = FastAPI()
 storage = Storage()
 coords_queue = RequestedCoords()

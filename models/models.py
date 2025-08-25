@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from dataclasses import dataclass
-import requests
+import aiohttp
 import folium
 from folium.plugins import HeatMap
 
@@ -69,7 +69,7 @@ class ViewData:
     def create_map(self, x: float, y: float) -> None:
         city_center = [x, y]
         data_points = []
-        logging.debug("Creating a map for coords {x} {y} was created.")
+        logging.debug(f"Creating a map for coords {x} {y} was created.")
         for val in self.storage.return_with_filter(
                 x + 0.02949858216, x - 0.02949858216, y + 0.05012512207, y - 0.05012512207
         ).values():
@@ -126,27 +126,27 @@ class Scrapper:
                 right=current_position.y + 0.05012512207,
                 page=i,
             )
-            total_pages = self.__make_request(url)
+            total_pages = await self.__make_request(url)
             if total_pages == i:
                 break
 
-    def __make_request(self, url: str) -> int:
+    async def __make_request(self, url: str) -> int:
 
-        data = dict
-        total_count = int
-        try:  # todo add 4xx 5xx handler and retry
-            headers = {
-                "Content-Encoding": "zstd",
-                "Content-Type": "application/json; charset=utf-8",
-            }
-            response = requests.get(url, timeout=30, headers=headers)  # aiohttp
-            data = response.json()
-            total_count = int(data["totalCount"])
-        except requests.exceptions.Timeout:
-            logging.error("Request timed out")
-
+        data: dict
+        total_count:  int
+        headers = {
+            "Content-Encoding": "zstd",
+            "Content-Type": "application/json; charset=utf-8",
+        }
+        timeout = aiohttp.ClientTimeout(total=30)  # same as timeout=30 in requests
+        async with aiohttp.ClientSession(timeout=timeout, headers=headers) as session:
+            async with session.get(url) as response:
+                response.raise_for_status()        # optional, raises on 4xx/5xx
+                data = await response.json()       # async JSON parser
+                total_count = int(data["totalCount"])
         self.storage.update(self.__parce_info(data))
         return total_count
+
 
     def __parce_info(self, raw_date: dict[any, any]) -> dict[int, StorageItem]:
         real_state = {}
