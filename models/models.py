@@ -69,7 +69,7 @@ class ViewData:
     def create_map(self, x: float, y: float) -> None:
         city_center = [x, y]
         data_points = []
-        logging.debug("Creating a map")
+        logging.debug("Creating a map for coords {x} {y} was created.")
         for val in self.storage.return_with_filter(
                 x + 0.02949858216, x - 0.02949858216, y + 0.05012512207, y - 0.05012512207
         ).values():
@@ -84,7 +84,7 @@ class ViewData:
 
 
 class Scrapper:
-    coords_list: list = []
+    coords_list: list
     avito_url: str = (
         "https://www.avito.ru/js/1/map/items?categoryId=24&locationId=653240&correctorMode=0&page=$page"
         "&map=eyJzZWFyY2hBcmVhIjp7ImxhdEJvdHRvbSI6NTkuOTUxMzg3OTE4NjkwMDI0LCJsYXRUb3AiOjYwLjAxMDM4NzY0ODM"
@@ -108,14 +108,14 @@ class Scrapper:
     async def run(self) -> None:  # todo make it better
         while True:
             if self.requested_coords.count() != 0:
-                logging.info("Start parsing the data")
-                self.__get_real_estate_items()
-                logging.info("Data is parsed")
+                logging.debug("Start parsing the data")
+                await self.__get_real_estate_items()
+                logging.debug("Data is parsed")
             else:
-                logging.info("No new data")
+                logging.debug("No new data")
             await asyncio.sleep(10)
 
-    def __get_real_estate_items(self) -> None:
+    async def __get_real_estate_items(self) -> None:
         current_position = self.requested_coords.coords.pop()
         template = Template(self.avito_url)
         for i in range(10):
@@ -139,7 +139,7 @@ class Scrapper:
                 "Content-Encoding": "zstd",
                 "Content-Type": "application/json; charset=utf-8",
             }
-            response = requests.get(url, timeout=30, headers=headers)
+            response = requests.get(url, timeout=30, headers=headers)  # aiohttp
             data = response.json()
             total_count = int(data["totalCount"])
         except requests.exceptions.Timeout:

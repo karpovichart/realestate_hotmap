@@ -14,6 +14,7 @@ ENV PATH="/root/.local/bin/:$PATH"
 WORKDIR /app
 COPY ["pyproject.toml", "uv.lock", "/app/"]
 
-RUN uv sync
+RUN uv sync --no-dev
 COPY . /app
-CMD ["uv", "run", "/app/main.py"]
+ENTRYPOINT ["uv", "run", "uvicorn", "main:app"]
+CMD ["--host", "0.0.0.0", "--port", "8100"]

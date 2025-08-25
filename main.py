@@ -1,4 +1,5 @@
 import logging
+from urllib.request import Request
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
@@ -15,17 +16,24 @@ app = FastAPI()
 storage = Storage()
 coords_queue = RequestedCoords()
 
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    logger.debug("Start request page")
+    response = await call_next(request)
+    logger.debug("Page generated")
+    logger.debug("Handle request")
+    return response
+
+
 @app.on_event("startup")
 async def startup():
     scrapper = Scrapper(storage, coords_queue)
     asyncio.create_task(scrapper.run())
 
-@app.get("/get/")
+@app.get("/get")
 async def get_file(x: float, y: float) -> FileResponse:
-    logger.debug("Start request page")
     coords_queue.coords.append(Coords(x, y))
     view_data = ViewData(storage)
     view_data.create_map(float(x), float(y))
-    logger.debug("Page generated")
-    logger.debug("Handle request")
     return FileResponse(view_data.file_path)
